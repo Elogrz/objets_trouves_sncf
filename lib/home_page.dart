@@ -6,6 +6,7 @@ class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
+//TODO ajouter une ligne "toutes les gares" et "toutes les catégories" dans le menu déroulant au lieu de tout afficher quand on séléctionne rien et rendre le bouton rechercher inaccessible si rien n'est séléctionné
 
 class _HomePageState extends State<HomePage> {
   final ApiService apiService = ApiService();

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'api_service.dart';
 
+//TODO ajouter une ligne "toutes les gares" et "toutes les catégories" dans le menu déroulant au lieu de tout afficher quand on séléctionne rien
+
 class ResultsPage extends StatefulWidget {
   final String? selectedGare;
   final String? selectedTypeObject;
@@ -146,7 +148,8 @@ class _ResultsPageState extends State<ResultsPage> {
                       itemBuilder: (context, index) {
                         final item = items[index];
                         final fields = item['fields'] ?? {};
-
+                        //TODO ajouter si l'objet a deja ete récupéré ou non
+                        //TODO rendre la date plus lisible pour les utilisateurs
                         final gareOrigine = fields['gc_obo_gare_origine_r_name'] ?? 'Inconnue';
                         final typeObjet = fields['gc_obo_type_c'] ?? 'Type non spécifié';
                         final natureObjet = fields['gc_obo_nature_c'] ?? 'Nature non spécifiée';
