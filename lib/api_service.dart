@@ -4,20 +4,27 @@ import 'package:http/http.dart' as http;
 class ApiService {
   final String apiUrl = 'https://data.sncf.com/api/records/1.0/search/?dataset=objets-trouves-restitution';
 
-  Future<List<dynamic>> fetchLostItems({String? gare, String? typeObject}) async {
-    final uri = Uri.parse(apiUrl + (gare != null ? '&q=$gare' : '') + (typeObject != null ? '+$typeObject' : ''));
+  static const int nbRows = 50;
+
+  Future<List<dynamic>> fetchLostItems({String? gare, String? typeObject, int rows = nbRows}) async {
+    final uri = Uri.parse(
+      '$apiUrl&rows=$rows${gare != null ? '&q=gc_obo_gare_origine_r_name:"$gare"' : ''}${typeObject != null ? '&q=gc_obo_type_c:"$typeObject"' : ''}',
+    );
+
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-      return data['records'] ?? [];
-    } else {
-      throw Exception('Erreur lors de la récupération des données');
+      final data = json.decode(response.body);
+
+      if (data != null && data['records'] is List) {
+        return data['records'];
+      }
     }
+    return [];
   }
 
-  Future<List<String>> fetchAllGares() async {
-    final response = await http.get(Uri.parse(apiUrl));
+  Future<List<String>> fetchAllGares({int rows = nbRows}) async {
+    final response = await http.get(Uri.parse('$apiUrl&rows=$rows'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
@@ -35,8 +42,8 @@ class ApiService {
     }
   }
 
-  Future<List<String>> fetchAllTypeObject() async {
-    final response = await http.get(Uri.parse(apiUrl));
+  Future<List<String>> fetchAllTypeObject({int rows = nbRows}) async {
+    final response = await http.get(Uri.parse('$apiUrl&rows=$rows'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
@@ -52,38 +59,5 @@ class ApiService {
     } else {
       throw Exception('Erreur lors de la récupération des types d\'objet');
     }
-  }
-
-  Future<List<Map<String, dynamic>>> fetchFilteredObjects({
-    String? gare,
-    String? typeObject,
-  }) async {
-    final response = await http.get(Uri.parse(apiUrl));
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-
-      List<Map<String, dynamic>> filteredItems = [];
-      for (var record in data['records']) {
-        var fields = record['fields'];
-
-        if ((gare == null || fields['gc_obo_gare_origine_r_name'] == gare) &&
-            (typeObject == null || fields['gc_obo_type_c'] == typeObject)) {
-          filteredItems.add(fields);
-        }
-      }
-
-      return filteredItems;
-    } else {
-      throw Exception('Erreur lors de la récupération des objets filtrés');
-    }
-  }
-
-  Future<List<String>> get gares async {
-    return await fetchAllGares();
-  }
-
-  Future<List<String>> get typeObjects async {
-    return await fetchAllTypeObject();
   }
 }

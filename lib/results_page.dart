@@ -81,7 +81,7 @@ class _ResultsPageState extends State<ResultsPage> {
                     value: selectedGare,
                     isExpanded: true,
                     dropdownColor: Color(0xFF8BE7FC),
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.black),
                     onChanged: (String? newValue) {
                       setState(() {
                         selectedGare = newValue;
@@ -112,7 +112,7 @@ class _ResultsPageState extends State<ResultsPage> {
                     value: selectedTypeObject,
                     isExpanded: true,
                     dropdownColor: Color(0xFF8BE7FC),
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.black),
                     onChanged: (String? newValue) {
                       setState(() {
                         selectedTypeObject = newValue;
@@ -141,8 +141,6 @@ class _ResultsPageState extends State<ResultsPage> {
                     return Center(child: Text('Aucun objet trouvé.'));
                   } else {
                     final items = snapshot.data!;
-                    print(items);
-
                     return ListView.builder(
                       itemCount: items.length,
                       itemBuilder: (context, index) {
