@@ -5,7 +5,7 @@ class ApiService {
   final String apiUrl = 'https://data.sncf.com/api/records/1.0/search/?dataset=objets-trouves-restitution';
 
   Future<List<dynamic>> fetchLostItems({String? gare, String? typeObject}) async {
-    final uri = Uri.parse(apiUrl + '&q=${gare ?? ''}+${typeObject ?? ''}');
+    final uri = Uri.parse(apiUrl + (gare != null ? '&q=$gare' : '') + (typeObject != null ? '+$typeObject' : ''));
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {
@@ -50,13 +50,13 @@ class ApiService {
 
       return typeObject.toList();
     } else {
-      throw Exception('Erreur lors de la récupération des gares');
+      throw Exception('Erreur lors de la récupération des types d\'objet');
     }
   }
 
   Future<List<Map<String, dynamic>>> fetchFilteredObjects({
-    required String gare,
-    required String typeObject,
+    String? gare,
+    String? typeObject,
   }) async {
     final response = await http.get(Uri.parse(apiUrl));
 
@@ -66,8 +66,9 @@ class ApiService {
       List<Map<String, dynamic>> filteredItems = [];
       for (var record in data['records']) {
         var fields = record['fields'];
-        if (fields['gc_obo_gare_origine_r_name'] == gare &&
-            fields['gc_obo_type_c'] == typeObject) {
+
+        if ((gare == null || fields['gc_obo_gare_origine_r_name'] == gare) &&
+            (typeObject == null || fields['gc_obo_type_c'] == typeObject)) {
           filteredItems.add(fields);
         }
       }
@@ -78,4 +79,11 @@ class ApiService {
     }
   }
 
+  Future<List<String>> get gares async {
+    return await fetchAllGares();
+  }
+
+  Future<List<String>> get typeObjects async {
+    return await fetchAllTypeObject();
+  }
 }
