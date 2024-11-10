@@ -95,7 +95,7 @@ class _HomePageState extends State<HomePage> {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: (selectedGare != null || selectedTypeObject != null)
+              onPressed: (selectedGare != null && selectedTypeObject != null)
                   ? () {
                 Navigator.push(
                   context,
