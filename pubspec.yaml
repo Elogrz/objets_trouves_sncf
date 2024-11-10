@@ -63,6 +63,10 @@ flutter:
   assets:
     - assets/sncf_logo.png
     - assets/sncf_logo_dark.png
+    - assets/apercu0.png
+    - assets/apercu1.png
+    - assets/apercu2.png
+    - assets/apercu3.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
