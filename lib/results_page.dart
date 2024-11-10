@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'api_service.dart';
+import 'package:intl/intl.dart';
 
 //TODO ajouter une ligne "toutes les gares" et "toutes les catégories" dans le menu déroulant au lieu de tout afficher quand on séléctionne rien
 
@@ -149,11 +150,12 @@ class _ResultsPageState extends State<ResultsPage> {
                         final item = items[index];
                         final fields = item['fields'] ?? {};
                         //TODO ajouter si l'objet a deja ete récupéré ou non
-                        //TODO rendre la date plus lisible pour les utilisateurs
                         final gareOrigine = fields['gc_obo_gare_origine_r_name'] ?? 'Inconnue';
                         final typeObjet = fields['gc_obo_type_c'] ?? 'Type non spécifié';
                         final natureObjet = fields['gc_obo_nature_c'] ?? 'Nature non spécifiée';
-                        final dateObjet = fields['date'] ?? 'Date inconnue';
+                        final dateObjet = fields['date'] != null
+                            ? DateFormat('dd MMM yyyy, HH:mm').format(DateTime.parse(fields['date']))
+                            : 'Date inconnue';
 
                         return Card(
                           child: ListTile(
