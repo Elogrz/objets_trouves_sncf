@@ -1,15 +1,29 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class ApiService {
   final String apiUrl = 'https://data.sncf.com/api/records/1.0/search/?dataset=objets-trouves-restitution';
-
   static const int nbRows = 50;
 
-  Future<List<dynamic>> fetchLostItems({String? gare, String? typeObject, int rows = nbRows}) async {
-    final uri = Uri.parse(
-      '$apiUrl&rows=$rows${gare != null ? '&q=gc_obo_gare_origine_r_name:"$gare"' : ''}${typeObject != null ? '&q=gc_obo_type_c:"$typeObject"' : ''}',
-    );
+  Future<List<dynamic>> fetchLostItems({
+    String? gare,
+    String? typeObject,
+    DateTime? startDate,
+    DateTime? endDate,
+    int rows = nbRows,
+  }) async {
+    // Build query parameters
+    List<String> queryParams = [
+      'rows=$rows',
+      if (gare != null) 'q=gc_obo_gare_origine_r_name:"$gare"',
+      if (typeObject != null) 'q=gc_obo_type_c:"$typeObject"',
+      if (startDate != null) 'q=date>=${DateFormat('yyyy-MM-dd').format(startDate)}',
+      if (endDate != null) 'q=date<=${DateFormat('yyyy-MM-dd').format(endDate)}',
+    ];
+
+    // Construct the final URI
+    final uri = Uri.parse('$apiUrl&${queryParams.join('&')}');
 
     final response = await http.get(uri);
 

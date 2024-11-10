@@ -11,6 +11,8 @@ class _HomePageState extends State<HomePage> {
   final ApiService apiService = ApiService();
   String? selectedGare;
   String? selectedTypeObject;
+  DateTime? startDate;
+  DateTime? endDate;
   List<String> gares = [];
   List<String> typeObjects = [];
 
@@ -35,6 +37,34 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _selectStartDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != startDate) {
+      setState(() {
+        startDate = picked;
+      });
+    }
+  }
+
+  Future<void> _selectEndDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != endDate) {
+      setState(() {
+        endDate = picked;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +82,7 @@ class _HomePageState extends State<HomePage> {
             ),
             SizedBox(height: 8),
             Text(
-              'Retrouvez vos objets perdus en fonction de votre gare et de la catégorie de votre objet.',
+              'Retrouvez vos objets perdus en fonction de votre gare, de la catégorie de votre objet et de la date',
               style: TextStyle(color: Colors.white),
             ),
             SizedBox(height: 16),
@@ -94,6 +124,32 @@ class _HomePageState extends State<HomePage> {
               }).toList(),
             ),
             SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => _selectStartDate(context),
+                    child: Text(
+                      startDate != null
+                          ? 'Date début: ${startDate!.toLocal()}'.split(' ')[0]
+                          : 'Sélectionnez la date de début',
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => _selectEndDate(context),
+                    child: Text(
+                      endDate != null
+                          ? 'Date fin: ${endDate!.toLocal()}'.split(' ')[0]
+                          : 'Sélectionnez la date de fin',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: (selectedGare != null && selectedTypeObject != null)
                   ? () {
@@ -103,6 +159,8 @@ class _HomePageState extends State<HomePage> {
                     builder: (context) => ResultsPage(
                       selectedGare: selectedGare == 'Toutes les gares' ? null : selectedGare,
                       selectedTypeObject: selectedTypeObject == 'Toutes les catégories' ? null : selectedTypeObject,
+                      startDate: startDate,
+                      endDate: endDate,
                     ),
                   ),
                 );

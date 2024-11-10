@@ -5,8 +5,10 @@ import 'package:intl/intl.dart';
 class ResultsPage extends StatefulWidget {
   final String? selectedGare;
   final String? selectedTypeObject;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
-  ResultsPage({this.selectedGare, this.selectedTypeObject});
+  ResultsPage({this.selectedGare, this.selectedTypeObject, this.startDate, this.endDate});
 
   @override
   _ResultsPageState createState() => _ResultsPageState();
@@ -16,6 +18,8 @@ class _ResultsPageState extends State<ResultsPage> {
   final ApiService apiService = ApiService();
   String? selectedGare;
   String? selectedTypeObject;
+  DateTime? startDate;
+  DateTime? endDate;
   Future<List<dynamic>>? _futureLostItems;
   List<String> gares = [];
   List<String> types = [];
@@ -25,6 +29,8 @@ class _ResultsPageState extends State<ResultsPage> {
     super.initState();
     selectedGare = widget.selectedGare;
     selectedTypeObject = widget.selectedTypeObject;
+    startDate = widget.startDate;
+    endDate = widget.endDate;
     fetchItems();
     loadGares();
     loadTypeObject();
@@ -48,6 +54,8 @@ class _ResultsPageState extends State<ResultsPage> {
     _futureLostItems = apiService.fetchLostItems(
       gare: selectedGare,
       typeObject: selectedTypeObject,
+      startDate: startDate,
+      endDate: endDate,
     );
   }
 
