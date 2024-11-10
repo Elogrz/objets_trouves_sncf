@@ -149,13 +149,16 @@ class _ResultsPageState extends State<ResultsPage> {
                       itemBuilder: (context, index) {
                         final item = items[index];
                         final fields = item['fields'] ?? {};
-                        //TODO ajouter si l'objet a deja ete récupéré ou non
                         final gareOrigine = fields['gc_obo_gare_origine_r_name'] ?? 'Inconnue';
                         final typeObjet = fields['gc_obo_type_c'] ?? 'Type non spécifié';
                         final natureObjet = fields['gc_obo_nature_c'] ?? 'Nature non spécifiée';
                         final dateObjet = fields['date'] != null
                             ? DateFormat('dd MMM yyyy, HH:mm').format(DateTime.parse(fields['date']))
                             : 'Date inconnue';
+                        final statut = fields['gc_obo_date_heure_restitution_c'] != null
+                            ? 'Objet récupéré le ${DateFormat('dd MMM yyyy, HH:mm').format(DateTime.parse(fields['gc_obo_date_heure_restitution_c']))}'
+                            : 'Objet à récupérer';
+
 
                         return Card(
                           child: ListTile(
@@ -163,7 +166,8 @@ class _ResultsPageState extends State<ResultsPage> {
                             subtitle: Text(
                               'Gare : $gareOrigine\n'
                                   'Type : $typeObjet\n'
-                                  'Date : $dateObjet',
+                                  'Date : $dateObjet\n'
+                                  'Statut : $statut',
                             ),
                           ),
                         );
