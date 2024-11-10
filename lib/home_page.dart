@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'api_service.dart';
 import 'results_page.dart';
 
@@ -124,32 +125,50 @@ class _HomePageState extends State<HomePage> {
               }).toList(),
             ),
             SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => _selectStartDate(context),
-                    child: Text(
-                      startDate != null
-                          ? 'Date début: ${startDate!.toLocal()}'.split(' ')[0]
-                          : 'Sélectionnez la date de début',
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Color(0xFF8BE7FC),
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => _selectEndDate(context),
-                    child: Text(
-                      endDate != null
-                          ? 'Date fin: ${endDate!.toLocal()}'.split(' ')[0]
-                          : 'Sélectionnez la date de fin',
-                    ),
+                  onPressed: () => _selectStartDate(context),
+                  child: Text(
+                    startDate != null
+                        ? 'Date début: ${DateFormat('dd MMM yyyy').format(startDate!)}'
+                        : 'Sélectionnez la date de début',
+                    style: TextStyle(fontSize: 16),
                   ),
                 ),
-              ],
-            ),
-            SizedBox(height: 16),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Color(0xFF8BE7FC),
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () => _selectEndDate(context),
+                  child: Text(
+                    endDate != null
+                        ? 'Date fin: ${DateFormat('dd MMM yyyy').format(endDate!)}'
+                        : 'Sélectionnez la date de fin',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
             ElevatedButton(
               onPressed: (selectedGare != null && selectedTypeObject != null)
                   ? () {
