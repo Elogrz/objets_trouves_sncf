@@ -6,7 +6,6 @@ class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
-//TODO ajouter une ligne "toutes les gares" et "toutes les catégories" dans le menu déroulant au lieu de tout afficher quand on séléctionne rien et rendre le bouton rechercher inaccessible si rien n'est séléctionné
 
 class _HomePageState extends State<HomePage> {
   final ApiService apiService = ApiService();
@@ -25,14 +24,14 @@ class _HomePageState extends State<HomePage> {
   Future<void> loadGares() async {
     final fetchedGares = await apiService.fetchAllGares();
     setState(() {
-      gares = fetchedGares;
+      gares = ['Toutes les gares', ...fetchedGares];
     });
   }
 
   Future<void> loadTypeObject() async {
     final fetchedTypeObjects = await apiService.fetchAllTypeObject();
     setState(() {
-      typeObjects = fetchedTypeObjects;
+      typeObjects = ['Toutes les catégories', ...fetchedTypeObjects];
     });
   }
 
@@ -96,17 +95,19 @@ class _HomePageState extends State<HomePage> {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
+              onPressed: (selectedGare != null || selectedTypeObject != null)
+                  ? () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ResultsPage(
-                      selectedGare: selectedGare,
-                      selectedTypeObject: selectedTypeObject,
+                      selectedGare: selectedGare == 'Toutes les gares' ? null : selectedGare,
+                      selectedTypeObject: selectedTypeObject == 'Toutes les catégories' ? null : selectedTypeObject,
                     ),
                   ),
                 );
-              },
+              }
+                  : null,
               child: Text('Rechercher'),
             ),
           ],
@@ -115,3 +116,5 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+

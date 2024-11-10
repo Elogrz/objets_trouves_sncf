@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'api_service.dart';
 import 'package:intl/intl.dart';
 
-//TODO ajouter une ligne "toutes les gares" et "toutes les catégories" dans le menu déroulant au lieu de tout afficher quand on séléctionne rien
-
 class ResultsPage extends StatefulWidget {
   final String? selectedGare;
   final String? selectedTypeObject;
@@ -19,6 +17,8 @@ class _ResultsPageState extends State<ResultsPage> {
   String? selectedGare;
   String? selectedTypeObject;
   Future<List<dynamic>>? _futureLostItems;
+  List<String> gares = [];
+  List<String> types = [];
 
   @override
   void initState() {
@@ -26,30 +26,29 @@ class _ResultsPageState extends State<ResultsPage> {
     selectedGare = widget.selectedGare;
     selectedTypeObject = widget.selectedTypeObject;
     fetchItems();
+    loadGares();
+    loadTypeObject();
+  }
+
+  Future<void> loadGares() async {
+    final fetchedGares = await apiService.fetchAllGares();
+    setState(() {
+      gares = ['Toutes les gares', ...fetchedGares];
+    });
+  }
+
+  Future<void> loadTypeObject() async {
+    final fetchedTypes = await apiService.fetchAllTypeObject();
+    setState(() {
+      types = ['Toutes les catégories', ...fetchedTypes];
+    });
   }
 
   void fetchItems() {
-    if (selectedGare != null && selectedTypeObject != null) {
-      _futureLostItems = apiService.fetchLostItems(
-        gare: selectedGare,
-        typeObject: selectedTypeObject,
-      );
-    } else if (selectedGare != null) {
-      _futureLostItems = apiService.fetchLostItems(
-        gare: selectedGare,
-        typeObject: null,
-      );
-    } else if (selectedTypeObject != null) {
-      _futureLostItems = apiService.fetchLostItems(
-        gare: null,
-        typeObject: selectedTypeObject,
-      );
-    } else {
-      _futureLostItems = apiService.fetchLostItems(
-        gare: null,
-        typeObject: null,
-      );
-    }
+    _futureLostItems = apiService.fetchLostItems(
+      gare: selectedGare,
+      typeObject: selectedTypeObject,
+    );
   }
 
   @override
@@ -70,67 +69,43 @@ class _ResultsPageState extends State<ResultsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FutureBuilder<List<String>>(
-              future: apiService.fetchAllGares(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Erreur lors du chargement des gares');
-                } else {
-                  final gares = snapshot.data!;
-                  return DropdownButton<String>(
-                    hint: Text('Sélectionnez la gare'),
-                    value: selectedGare,
-                    isExpanded: true,
-                    dropdownColor: Color(0xFF8BE7FC),
-                    style: TextStyle(color: Colors.black),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedGare = newValue;
-                        fetchItems();
-                      });
-                    },
-                    items: gares.map((gare) {
-                      return DropdownMenuItem(
-                        value: gare,
-                        child: Text(gare),
-                      );
-                    }).toList(),
-                  );
-                }
+            DropdownButton<String>(
+              hint: Text('Sélectionnez la gare'),
+              value: selectedGare ?? 'Toutes les gares',
+              isExpanded: true,
+              dropdownColor: Color(0xFF8BE7FC),
+              style: TextStyle(color: Colors.black),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedGare = newValue == 'Toutes les gares' ? null : newValue;
+                  fetchItems();
+                });
               },
+              items: gares.map((gare) {
+                return DropdownMenuItem(
+                  value: gare,
+                  child: Text(gare),
+                );
+              }).toList(),
             ),
-            FutureBuilder<List<String>>(
-              future: apiService.fetchAllTypeObject(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Erreur lors du chargement des catégories');
-                } else {
-                  final types = snapshot.data!;
-                  return DropdownButton<String>(
-                    hint: Text('Sélectionnez la catégorie'),
-                    value: selectedTypeObject,
-                    isExpanded: true,
-                    dropdownColor: Color(0xFF8BE7FC),
-                    style: TextStyle(color: Colors.black),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedTypeObject = newValue;
-                        fetchItems();
-                      });
-                    },
-                    items: types.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(type),
-                      );
-                    }).toList(),
-                  );
-                }
+            DropdownButton<String>(
+              hint: Text('Sélectionnez la catégorie'),
+              value: selectedTypeObject ?? 'Toutes les catégories',
+              isExpanded: true,
+              dropdownColor: Color(0xFF8BE7FC),
+              style: TextStyle(color: Colors.black),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedTypeObject = newValue == 'Toutes les catégories' ? null : newValue;
+                  fetchItems();
+                });
               },
+              items: types.map((type) {
+                return DropdownMenuItem(
+                  value: type,
+                  child: Text(type),
+                );
+              }).toList(),
             ),
             Expanded(
               child: FutureBuilder<List<dynamic>>(
@@ -159,7 +134,6 @@ class _ResultsPageState extends State<ResultsPage> {
                             ? 'Objet récupéré le ${DateFormat('dd MMM yyyy, HH:mm').format(DateTime.parse(fields['gc_obo_date_heure_restitution_c']))}'
                             : 'Objet à récupérer';
 
-
                         return Card(
                           child: ListTile(
                             title: Text(natureObjet),
@@ -176,10 +150,11 @@ class _ResultsPageState extends State<ResultsPage> {
                   }
                 },
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 }
+
