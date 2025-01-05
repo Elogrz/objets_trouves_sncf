@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'api_service.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'api_service.dart';
 
 class ResultsPage extends StatefulWidget {
   final String? selectedGare;
@@ -57,6 +58,16 @@ class _ResultsPageState extends State<ResultsPage> {
       startDate: startDate,
       endDate: endDate,
     );
+
+    savePreferences();
+  }
+
+  Future<void> savePreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedGare', selectedGare ?? '');
+    await prefs.setString('selectedTypeObject', selectedTypeObject ?? '');
+    await prefs.setString('startDate', startDate?.toIso8601String() ?? '');
+    await prefs.setString('endDate', endDate?.toIso8601String() ?? '');
   }
 
   @override
@@ -165,4 +176,3 @@ class _ResultsPageState extends State<ResultsPage> {
     );
   }
 }
-

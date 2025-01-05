@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'api_service.dart';
 import 'results_page.dart';
 
@@ -22,6 +23,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     loadGares();
     loadTypeObject();
+    loadPreferences();
   }
 
   Future<void> loadGares() async {
@@ -38,10 +40,20 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> loadPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedGare = prefs.getString('selectedGare');
+      selectedTypeObject = prefs.getString('selectedTypeObject');
+      startDate = DateTime.tryParse(prefs.getString('startDate') ?? '');
+      endDate = DateTime.tryParse(prefs.getString('endDate') ?? '');
+    });
+  }
+
   Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: startDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
@@ -55,7 +67,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _selectEndDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: endDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
@@ -64,6 +76,14 @@ class _HomePageState extends State<HomePage> {
         endDate = picked;
       });
     }
+  }
+
+  Future<void> savePreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedGare', selectedGare ?? '');
+    await prefs.setString('selectedTypeObject', selectedTypeObject ?? '');
+    await prefs.setString('startDate', startDate?.toIso8601String() ?? '');
+    await prefs.setString('endDate', endDate?.toIso8601String() ?? '');
   }
 
   @override
@@ -103,7 +123,7 @@ class _HomePageState extends State<HomePage> {
                   value: gare,
                   child: Text(gare),
                 );
-              }).toList(),
+              }). toList(),
             ),
             SizedBox(height: 8),
             DropdownButton<String>(
@@ -125,67 +145,100 @@ class _HomePageState extends State<HomePage> {
               }).toList(),
             ),
             SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Color(0xFF8BE7FC),
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Color(0xFF8BE7FC),
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                  ),
-                  onPressed: () => _selectStartDate(context),
-                  child: Text(
-                    startDate != null
-                        ? 'Date début: ${DateFormat('dd MMM yyyy').format(startDate!)}'
-                        : 'Sélectionnez la date de début',
-                    style: TextStyle(fontSize: 16),
+                    onPressed: () => _selectStartDate(context),
+                    child: Text(
+                      startDate != null
+                          ? 'Date début: ${DateFormat('dd MMM yyyy').format(startDate!)}'
+                          : 'Sélectionnez la date de début',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Color(0xFF8BE7FC),
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Color(0xFF8BE7FC),
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                  ),
-                  onPressed: () => _selectEndDate(context),
-                  child: Text(
-                    endDate != null
-                        ? 'Date fin: ${DateFormat('dd MMM yyyy').format(endDate!)}'
-                        : 'Sélectionnez la date de fin',
-                    style: TextStyle(fontSize: 16),
+                    onPressed: () => _selectEndDate(context),
+                    child: Text(
+                      endDate != null
+                          ? 'Date fin: ${DateFormat('dd MMM yyyy').format(endDate!)}'
+                          : 'Sélectionnez la date de fin',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: (selectedGare != null && selectedTypeObject != null)
-                  ? () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ResultsPage(
-                      selectedGare: selectedGare == 'Toutes les gares' ? null : selectedGare,
-                      selectedTypeObject: selectedTypeObject == 'Toutes les catégories' ? null : selectedTypeObject,
-                      startDate: startDate,
-                      endDate: endDate,
+              ],
+            ),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Color(0xFF8BE7FC),
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
+                    onPressed: () {
+                      savePreferences();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ResultsPage(
+                            selectedGare: selectedGare == 'Toutes les gares' ? null : selectedGare,
+                            selectedTypeObject: selectedTypeObject == 'Toutes les catégories' ? null : selectedTypeObject,
+                            startDate: startDate,
+                            endDate: endDate,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text('Rechercher'),
                   ),
-                );
-              }
-                  : null,
-              child: Text('Rechercher'),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    await loadPreferences();
+                    if (selectedGare != null && selectedTypeObject != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ResultsPage(
+                            selectedGare: selectedGare,
+                            selectedTypeObject: selectedTypeObject,
+                            startDate: startDate,
+                            endDate: endDate,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: Text('Reprendre là où j\'en étais'),
+                ),
+              ],
             ),
           ],
         ),
@@ -193,5 +246,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
